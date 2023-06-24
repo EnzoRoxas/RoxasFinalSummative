@@ -97,7 +97,11 @@ app.get('/users', (req, res) =>{
 // The GET request retrieves all of the orders of the logged in User. The User must first make an order first in order to use this.
 app.get('/users/takeOrder', (req, res)=>{
 	if (loggedUser.isAdmin === false){
-		res.send(userOrder);
+		let noNull = userOrder.filter((element)=>{
+      return element !== null
+    })
+    userOrder = noNull;
+    res.status(200).send(userOrder);
 	}
 
 	else{
@@ -109,7 +113,7 @@ app.get('/users/takeOrder', (req, res)=>{
 app.get('/users/takeOrder/:orderId', (req,res)=>{
      let orderIndex = parseInt(req.params.orderId);
      if (loggedUser.isAdmin === false ){
-     	  res.send(userOrder[orderIndex]);
+        res.send(userOrder[orderIndex]);
      	
      }
 
@@ -172,7 +176,7 @@ app.post('/users/login', (req, res) =>{
 });
 
 
-// This POST request allows the user to create an order.
+// This POST request allows the user to create an order. It gets a specific product from the products using the index.
 app.post('/users/createOrder/:index', (req, res) =>{
 	let productOrder = parseInt(req.params.index);
 
@@ -181,7 +185,7 @@ app.post('/users/createOrder/:index', (req, res) =>{
 	let newOrder = {
     userId: req.body.userId,
   	products: [products[productOrder]],	
-  	totalAmount: req.body.totalAmount,
+  	totalAmount: products[productOrder].price,
   	purchasedOn: req.body.purchasedOn
 		}
 
@@ -229,12 +233,7 @@ app.get('/products/:productId', (req, res) =>{
 app.get('/products', (req,res)=>{
    
    let activeProduct = products.filter((products)=> products.isActive === true);
-   if (loggedUser.isAdmin === true){
         res.status(200).send(activeProduct);
-   }
-   else{
-   	res.status(401).send("Unauthorized Action!");
-   }
 
  });
 
@@ -320,7 +319,7 @@ app.delete('/order/:index', (req, res) =>{
 
 	if (loggedUser.isAdmin === false){
 		// const orderDlte = order.pop();
-		delete order[deleteOrder];
+		delete userOrder[deleteOrder];
 		res.status(200).send("The Order Has Been Deleted.")
 	}
 	
